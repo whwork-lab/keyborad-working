@@ -161,7 +161,6 @@ char hid_keycode_to_ascii(uint8_t modifier, uint8_t keycode) {
 void core1_main() {
     pio_usb_configuration_t pio_usb_config = PIO_USB_DEFAULT_CONFIG;
     pio_usb_config.pin_dp = 0;      // GPIO 0 (D+)
-    pio_usb_config.pin_dm = 1;      // GPIO 1 (D-)
     pio_usb_config.pio_rx_num = 0;
     pio_usb_config.pio_tx_num = 0;
     pio_usb_config.sm_tx = 0;
