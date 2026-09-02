@@ -6,6 +6,7 @@
 #include "lwip/pbuf.h"
 #include "lwip/udp.h"
 #include "lwip/netif.h"
+#include "lwip/ip4_addr.h"
 #include "hardware/gpio.h"
 
 // USB Host includes
@@ -16,7 +17,7 @@
 #define WIFI_SSID "YOUR_SSID"
 #define WIFI_PASSWORD "YOUR_PASSWORD"
 #define UDP_PORT 4444
-#define SERVER_IP "192.168.1.100"  // Change to your PC's IP
+#define SERVER_IP_ADDR(a,b,c,d) ((uint32_t)((d)<<24) | ((c)<<16) | ((b)<<8) | (a))
 
 // Keyboard report structure
 typedef struct {
@@ -49,7 +50,8 @@ void wifi_link_status_callback(void) {
             // Create UDP socket
             if (udp_socket == NULL) {
                 udp_socket = udp_new();
-                inet_aton(SERVER_IP, &server_addr);
+                // Set server IP: 192.168.1.100
+                IP4_ADDR(&server_addr, 192, 168, 1, 100);
             }
         }
     } else if (link_status < CYW43_LINK_UP) {
@@ -96,6 +98,8 @@ void process_kbd_report(hid_keyboard_report_t const *report) {
 }
 
 void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t instance, uint8_t const *desc_report, uint16_t desc_len) {
+    (void)desc_report;
+    (void)desc_len;
     printf("HID device mounted at addr %d, instance %d\n", dev_addr, instance);
     
     if (!tuh_hid_receive_report(dev_addr, instance)) {
