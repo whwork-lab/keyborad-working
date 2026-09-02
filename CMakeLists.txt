@@ -43,9 +43,6 @@ target_include_directories(keyboard_wifi PRIVATE
 target_compile_definitions(keyboard_wifi PRIVATE
     PICO_BOARD="pico_w"
     CFG_TUSB_MCU=OPT_MCU_RP2040
-    CFG_TUSB_HOST=1
-    CFG_TUH_HID=1
-    CFG_TUSB_OS=OPT_OS_PICO
     PICO_DEFAULT_USB_HOST_PIN_DP=0
     PICO_DEFAULT_USB_HOST_PIN_DM=1
     PICO_DEFAULT_LED_PIN_DISABLED=1
