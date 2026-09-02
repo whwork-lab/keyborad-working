@@ -1,0 +1,8 @@
+# This file is used to set up the Pico SDK path
+# Copy as pico_sdk_import.cmake and update PICO_SDK_PATH
+
+if (DEFINED ENV{PICO_SDK_PATH})
+    set(PICO_SDK_PATH $ENV{PICO_SDK_PATH})
+else()
+    message(FATAL_ERROR "PICO_SDK_PATH environment variable is not set")
+endif()

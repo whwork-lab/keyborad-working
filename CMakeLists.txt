@@ -1,52 +1,40 @@
-# == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
-if(WIN32)
-    set(USERHOME $ENV{USERPROFILE})
-else()
-    set(USERHOME $ENV{HOME})
-endif()
-set(sdkVersion 1.5.1)
-set(toolchainVersion 15_2_Rel1)
-set(picotoolVersion 2.0.0)
-set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
-if (EXISTS ${picoVscode})
-    include(${picoVscode})
-endif()
-# ====================================================================================
-set(PICO_BOARD pico_w CACHE STRING "Board type")
-
 cmake_minimum_required(VERSION 3.13)
-#set(PICO_SDK_PATH /Users/brendenadamczak/Documents/pico-sdk)
-include (pico_sdk_import.cmake)
-project(USB_DEVICE_AND_KEYBOARD)
+
+project(pico_keyboard_wifi C CXX ASM)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
+# Initialize the Raspberry Pi Pico SDK
+include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 
 pico_sdk_init()
 
-add_subdirectory("./Pico-PIO-USB" pico_pio_usb)
+add_executable(keyboard_wifi
+    main.c
+)
 
-set(target_name USB_DEVICE_AND_KEYBOARD)
-add_executable(${target_name})
-target_sources(${target_name} PRIVATE
- main_device.c
- main_host.c
- usb_descriptors.c
- # can use 'tinyusb_pico_pio_usb' library later when pico-sdk is updated
- ${PICO_TINYUSB_PATH}/src/portable/raspberrypi/pio_usb/dcd_pio_usb.c
- ${PICO_TINYUSB_PATH}/src/portable/raspberrypi/pio_usb/hcd_pio_usb.c
- )
+# Link USB Host library
+target_link_libraries(keyboard_wifi
+    pico_stdlib
+    pico_cyw43_arch_lwip_threadsafe_background
+    pico_lwip_core
+    pico_lwip_driver
+    tinyusb_host
+    tinyusb_board
+)
 
+# Enable USB Host mode
+target_compile_definitions(keyboard_wifi PRIVATE
+    CFG_TUSB_HOST=1
+    CFG_TUH_HID=1
+    CFG_TUSB_OS=OPT_OS_PICO
+)
 
+# USB Host pin configuration for GPIO 0 (D+) and GPIO 1 (D-)
+target_compile_definitions(keyboard_wifi PRIVATE
+    PICO_DEFAULT_USB_HOST_PIN_DP=0
+    PICO_DEFAULT_USB_HOST_PIN_DM=1
+)
 
-
- # print memory usage, enable all warnings
-target_link_options(${target_name} PRIVATE -Xlinker --print-memory-usage)
-target_compile_options(${target_name} PRIVATE ) #-Wall -Wextra
-
-# use tinyusb implementation
-target_compile_definitions(${target_name} PRIVATE PIO_USB_USE_TINYUSB)
-
-# needed so tinyusb can find tusb_config.h
-target_include_directories(${target_name} PRIVATE ${CMAKE_CURRENT_LIST_DIR})
-
-target_link_libraries(${target_name} PRIVATE pico_stdlib pico_pio_usb tinyusb_device tinyusb_host)
-pico_add_extra_outputs(${target_name})
-
+pico_add_extra_outputs(keyboard_wifi)
